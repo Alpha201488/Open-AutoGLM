@@ -90,14 +90,21 @@ You can choose to deploy the model service yourself or use a third-party model s
 
 If you don't want to deploy the model yourself, you can use the following third-party services that have already deployed our model:
 
-**1. Novita AI**
+**1. z.ai**
+
+- Documentation: https://docs.z.ai/api-reference/introduction
+- `--base-url`: `https://api.z.ai/api/paas/v4`
+- `--model`: `autoglm-phone-multilingual`
+- `--apikey`: Apply for your own API key on the z.ai platform
+
+**2. Novita AI**
 
 - Documentation: https://novita.ai/models/model-detail/zai-org-autoglm-phone-9b-multilingual
 - `--base-url`: `https://api.novita.ai/openai`
 - `--model`: `zai-org/autoglm-phone-9b-multilingual`
 - `--apikey`: Apply for your own API key on the Novita AI platform
 
-**2. Parasail**
+**3. Parasail**
 
 - Documentation: https://www.saas.parasail.io/serverless?name=auto-glm-9b-multilingual
 - `--base-url`: `https://api.parasail.io/v1`
@@ -107,6 +114,9 @@ If you don't want to deploy the model yourself, you can use the following third-
 Example usage with third-party services:
 
 ```bash
+# Using z.ai
+python main.py --base-url https://api.z.ai/api/paas/v4 --model "autoglm-phone-multilingual" --apikey "your-z-ai-api-key" "Open Chrome browser"
+
 # Using Novita AI
 python main.py --base-url https://api.novita.ai/openai --model "zai-org/autoglm-phone-9b-multilingual" --apikey "your-novita-api-key" "Open Chrome browser"
 
@@ -633,13 +643,19 @@ pip install -e .
 
 You can use the following third-party model services:
 
-1. **Novita AI**
+1. **z.ai**
+   - Documentation: https://docs.z.ai/api-reference/introduction
+   - `--base-url`: `https://api.z.ai/api/paas/v4`
+   - `--model`: `autoglm-phone-multilingual`
+   - `--apikey`: Apply for your own API key on the z.ai platform
+
+2. **Novita AI**
    - Documentation: https://novita.ai/models/model-detail/zai-org-autoglm-phone-9b-multilingual
    - `--base-url`: `https://api.novita.ai/openai`
    - `--model`: `zai-org/autoglm-phone-9b-multilingual`
    - `--apikey`: Apply for your own API key on the Novita AI platform
 
-2. **Parasail**
+3. **Parasail**
    - Documentation: https://www.saas.parasail.io/serverless?name=auto-glm-9b-multilingual
    - `--base-url`: `https://api.parasail.io/v1`
    - `--model`: `parasail-auto-glm-9b-multilingual`
@@ -648,6 +664,9 @@ You can use the following third-party model services:
 Example usage:
 
 ```bash
+# Using z.ai
+python main.py --base-url https://api.z.ai/api/paas/v4 --model "autoglm-phone-multilingual" --apikey "your-z-ai-api-key" "Open Chrome browser"
+
 # Using Novita AI
 python main.py --base-url https://api.novita.ai/openai --model "zai-org/autoglm-phone-9b-multilingual" --apikey "your-novita-api-key" "Open Chrome browser"
 
