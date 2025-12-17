@@ -1,6 +1,9 @@
 """App name to package name mapping for supported applications."""
 
-APP_PACKAGES: dict[str, str] = {
+from typing import Dict, List, Optional
+
+
+APP_PACKAGES: Dict[str, str] = {
     # Social & Messaging
     "微信": "com.tencent.mm",
     "QQ": "com.tencent.mobileqq",
@@ -188,7 +191,7 @@ APP_PACKAGES: dict[str, str] = {
 }
 
 
-def get_package_name(app_name: str) -> str | None:
+def get_package_name(app_name: str) -> Optional[str]:
     """
     Get the package name for an app.
 
@@ -201,7 +204,7 @@ def get_package_name(app_name: str) -> str | None:
     return APP_PACKAGES.get(app_name)
 
 
-def get_app_name(package_name: str) -> str | None:
+def get_app_name(package_name: str) -> Optional[str]:
     """
     Get the app name from a package name.
 
@@ -217,7 +220,7 @@ def get_app_name(package_name: str) -> str | None:
     return None
 
 
-def list_supported_apps() -> list[str]:
+def list_supported_apps() -> List[str]:
     """
     Get a list of all supported app names.
 

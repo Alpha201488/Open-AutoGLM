@@ -3,7 +3,7 @@
 import json
 import time
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, Dict, List, Optional, Tuple
 
 from openai import OpenAI
 
@@ -21,7 +21,7 @@ class ModelConfig:
     temperature: float = 0.0
     top_p: float = 0.85
     frequency_penalty: float = 0.2
-    extra_body: dict[str, Any] = field(default_factory=dict)
+    extra_body: Dict[str, Any] = field(default_factory=dict)
     lang: str = "cn"  # Language for UI messages: 'cn' or 'en'
 
 
@@ -33,9 +33,9 @@ class ModelResponse:
     action: str
     raw_content: str
     # Performance metrics
-    time_to_first_token: float | None = None  # Time to first token (seconds)
-    time_to_thinking_end: float | None = None  # Time to thinking end (seconds)
-    total_time: float | None = None  # Total inference time (seconds)
+    time_to_first_token: Optional[float] = None  # Time to first token (seconds)
+    time_to_thinking_end: Optional[float] = None  # Time to thinking end (seconds)
+    total_time: Optional[float] = None  # Total inference time (seconds)
 
 
 class ModelClient:
@@ -46,11 +46,11 @@ class ModelClient:
         config: Model configuration.
     """
 
-    def __init__(self, config: ModelConfig | None = None):
+    def __init__(self, config: Optional[ModelConfig] = None):
         self.config = config or ModelConfig()
         self.client = OpenAI(base_url=self.config.base_url, api_key=self.config.api_key)
 
-    def request(self, messages: list[dict[str, Any]]) -> ModelResponse:
+    def request(self, messages: List[Dict[str, Any]]) -> ModelResponse:
         """
         Send a request to the model.
 
@@ -173,7 +173,7 @@ class ModelClient:
             total_time=total_time,
         )
 
-    def _parse_response(self, content: str) -> tuple[str, str]:
+    def _parse_response(self, content: str) -> Tuple[str, str]:
         """
         Parse the model response into thinking and action parts.
 
@@ -220,14 +220,14 @@ class MessageBuilder:
     """Helper class for building conversation messages."""
 
     @staticmethod
-    def create_system_message(content: str) -> dict[str, Any]:
+    def create_system_message(content: str) -> Dict[str, Any]:
         """Create a system message."""
         return {"role": "system", "content": content}
 
     @staticmethod
     def create_user_message(
-        text: str, image_base64: str | None = None
-    ) -> dict[str, Any]:
+        text: str, image_base64: Optional[str] = None
+    ) -> Dict[str, Any]:
         """
         Create a user message with optional image.
 
@@ -253,12 +253,12 @@ class MessageBuilder:
         return {"role": "user", "content": content}
 
     @staticmethod
-    def create_assistant_message(content: str) -> dict[str, Any]:
+    def create_assistant_message(content: str) -> Dict[str, Any]:
         """Create an assistant message."""
         return {"role": "assistant", "content": content}
 
     @staticmethod
-    def remove_images_from_message(message: dict[str, Any]) -> dict[str, Any]:
+    def remove_images_from_message(message: Dict[str, Any]) -> Dict[str, Any]:
         """
         Remove image content from a message to save context space.
 

@@ -37,7 +37,7 @@ Phone Agent is a mobile intelligent assistant framework built on AutoGLM. It und
 
 ### 1. Python Environment
 
-Python 3.10 or higher is recommended.
+Python 3.8 or higher is supported (3.10+ recommended).
 
 ### 2. ADB (Android Debug Bridge)
 

@@ -5,7 +5,7 @@ import subprocess
 from typing import Optional
 
 
-def type_text(text: str, device_id: str | None = None) -> None:
+def type_text(text: str, device_id: Optional[str] = None) -> None:
     """
     Type text into the currently focused input field using ADB Keyboard.
 
@@ -37,7 +37,7 @@ def type_text(text: str, device_id: str | None = None) -> None:
     )
 
 
-def clear_text(device_id: str | None = None) -> None:
+def clear_text(device_id: Optional[str] = None) -> None:
     """
     Clear text in the currently focused input field.
 
@@ -53,7 +53,7 @@ def clear_text(device_id: str | None = None) -> None:
     )
 
 
-def detect_and_set_adb_keyboard(device_id: str | None = None) -> str:
+def detect_and_set_adb_keyboard(device_id: Optional[str] = None) -> str:
     """
     Detect current keyboard and switch to ADB Keyboard if needed.
 
@@ -87,7 +87,7 @@ def detect_and_set_adb_keyboard(device_id: str | None = None) -> str:
     return current_ime
 
 
-def restore_keyboard(ime: str, device_id: str | None = None) -> None:
+def restore_keyboard(ime: str, device_id: Optional[str] = None) -> None:
     """
     Restore the original keyboard IME.
 
@@ -102,7 +102,7 @@ def restore_keyboard(ime: str, device_id: str | None = None) -> None:
     )
 
 
-def _get_adb_prefix(device_id: str | None) -> list:
+def _get_adb_prefix(device_id: Optional[str]) -> list:
     """Get ADB command prefix with optional device specifier."""
     if device_id:
         return ["adb", "-s", device_id]

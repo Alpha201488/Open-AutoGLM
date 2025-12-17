@@ -7,7 +7,7 @@ import tempfile
 import uuid
 from dataclasses import dataclass
 from io import BytesIO
-from typing import Tuple
+from typing import Optional, Tuple
 
 from PIL import Image
 
@@ -22,7 +22,7 @@ class Screenshot:
     is_sensitive: bool = False
 
 
-def get_screenshot(device_id: str | None = None, timeout: int = 10) -> Screenshot:
+def get_screenshot(device_id: Optional[str] = None, timeout: int = 10) -> Screenshot:
     """
     Capture a screenshot from the connected Android device.
 
@@ -85,7 +85,7 @@ def get_screenshot(device_id: str | None = None, timeout: int = 10) -> Screensho
         return _create_fallback_screenshot(is_sensitive=False)
 
 
-def _get_adb_prefix(device_id: str | None) -> list:
+def _get_adb_prefix(device_id: Optional[str]) -> list:
     """Get ADB command prefix with optional device specifier."""
     if device_id:
         return ["adb", "-s", device_id]
