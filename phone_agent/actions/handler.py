@@ -4,7 +4,7 @@ import ast
 import re
 import time
 from dataclasses import dataclass
-from typing import Any, Callable
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 from phone_agent.adb import (
     back,
@@ -28,7 +28,7 @@ class ActionResult:
 
     success: bool
     should_finish: bool
-    message: str | None = None
+    message: Optional[str] = None
     requires_confirmation: bool = False
 
 
@@ -45,16 +45,16 @@ class ActionHandler:
 
     def __init__(
         self,
-        device_id: str | None = None,
-        confirmation_callback: Callable[[str], bool] | None = None,
-        takeover_callback: Callable[[str], None] | None = None,
+        device_id: Optional[str] = None,
+        confirmation_callback: Optional[Callable[[str], bool]] = None,
+        takeover_callback: Optional[Callable[[str], None]] = None,
     ):
         self.device_id = device_id
         self.confirmation_callback = confirmation_callback or self._default_confirmation
         self.takeover_callback = takeover_callback or self._default_takeover
 
     def execute(
-        self, action: dict[str, Any], screen_width: int, screen_height: int
+        self, action: Dict[str, Any], screen_width: int, screen_height: int
     ) -> ActionResult:
         """
         Execute an action from the AI model.
@@ -98,7 +98,7 @@ class ActionHandler:
                 success=False, should_finish=False, message=f"Action failed: {e}"
             )
 
-    def _get_handler(self, action_name: str) -> Callable | None:
+    def _get_handler(self, action_name: str) -> Optional[Callable]:
         """Get the handler method for an action."""
         handlers = {
             "Launch": self._handle_launch,
@@ -119,8 +119,8 @@ class ActionHandler:
         return handlers.get(action_name)
 
     def _convert_relative_to_absolute(
-        self, element: list[int], screen_width: int, screen_height: int
-    ) -> tuple[int, int]:
+        self, element: List[int], screen_width: int, screen_height: int
+    ) -> Tuple[int, int]:
         """Convert relative coordinates (0-1000) to absolute pixels."""
         x = int(element[0] / 1000 * screen_width)
         y = int(element[1] / 1000 * screen_height)
@@ -268,7 +268,7 @@ class ActionHandler:
         input(f"{message}\nPress Enter after completing manual operation...")
 
 
-def parse_action(response: str) -> dict[str, Any]:
+def parse_action(response: str) -> Dict[str, Any]:
     """
     Parse action from model response.
 
@@ -320,13 +320,13 @@ def parse_action(response: str) -> dict[str, Any]:
         raise ValueError(f"Failed to parse action: {e}")
 
 
-def do(**kwargs) -> dict[str, Any]:
+def do(**kwargs) -> Dict[str, Any]:
     """Helper function for creating 'do' actions."""
     kwargs["_metadata"] = "do"
     return kwargs
 
 
-def finish(**kwargs) -> dict[str, Any]:
+def finish(**kwargs) -> Dict[str, Any]:
     """Helper function for creating 'finish' actions."""
     kwargs["_metadata"] = "finish"
     return kwargs

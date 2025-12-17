@@ -44,7 +44,7 @@ ADB 调试能力，可通过 WiFi 或网络连接设备，实现灵活的远程�
 
 ### 1. Python 环境
 
-建议使用 Python 3.10 及以上版本。
+建议使用 Python 3.8 及以上版本（推荐 3.10+）。
 
 ### 2. ADB (Android Debug Bridge)
 

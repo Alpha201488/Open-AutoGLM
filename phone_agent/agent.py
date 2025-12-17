@@ -3,7 +3,7 @@
 import json
 import traceback
 from dataclasses import dataclass
-from typing import Any, Callable
+from typing import Any, Callable, Dict, List, Optional
 
 from phone_agent.actions import ActionHandler
 from phone_agent.actions.handler import do, finish, parse_action
@@ -18,9 +18,9 @@ class AgentConfig:
     """Configuration for the PhoneAgent."""
 
     max_steps: int = 100
-    device_id: str | None = None
+    device_id: Optional[str] = None
     lang: str = "cn"
-    system_prompt: str | None = None
+    system_prompt: Optional[str] = None
     verbose: bool = True
 
     def __post_init__(self):
@@ -34,9 +34,9 @@ class StepResult:
 
     success: bool
     finished: bool
-    action: dict[str, Any] | None
+    action: Optional[Dict[str, Any]]
     thinking: str
-    message: str | None = None
+    message: Optional[str] = None
 
 
 class PhoneAgent:
@@ -63,10 +63,10 @@ class PhoneAgent:
 
     def __init__(
         self,
-        model_config: ModelConfig | None = None,
-        agent_config: AgentConfig | None = None,
-        confirmation_callback: Callable[[str], bool] | None = None,
-        takeover_callback: Callable[[str], None] | None = None,
+        model_config: Optional[ModelConfig] = None,
+        agent_config: Optional[AgentConfig] = None,
+        confirmation_callback: Optional[Callable[[str], bool]] = None,
+        takeover_callback: Optional[Callable[[str], None]] = None,
     ):
         self.model_config = model_config or ModelConfig()
         self.agent_config = agent_config or AgentConfig()
@@ -78,7 +78,7 @@ class PhoneAgent:
             takeover_callback=takeover_callback,
         )
 
-        self._context: list[dict[str, Any]] = []
+        self._context: List[Dict[str, Any]] = []
         self._step_count = 0
 
     def run(self, task: str) -> str:
@@ -109,7 +109,7 @@ class PhoneAgent:
 
         return "Max steps reached"
 
-    def step(self, task: str | None = None) -> StepResult:
+    def step(self, task: Optional[str] = None) -> StepResult:
         """
         Execute a single step of the agent.
 
@@ -134,7 +134,7 @@ class PhoneAgent:
         self._step_count = 0
 
     def _execute_step(
-        self, user_prompt: str | None = None, is_first: bool = False
+        self, user_prompt: Optional[str] = None, is_first: bool = False
     ) -> StepResult:
         """Execute a single step of the agent loop."""
         self._step_count += 1
@@ -242,7 +242,7 @@ class PhoneAgent:
         )
 
     @property
-    def context(self) -> list[dict[str, Any]]:
+    def context(self) -> List[Dict[str, Any]]:
         """Get the current conversation context."""
         return self._context.copy()
 

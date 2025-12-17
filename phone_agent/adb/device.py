@@ -3,13 +3,13 @@
 import os
 import subprocess
 import time
-from typing import List, Optional, Tuple
+from typing import List, Optional
 
 from phone_agent.config.apps import APP_PACKAGES
 from phone_agent.config.timing import TIMING_CONFIG
 
 
-def get_current_app(device_id: str | None = None) -> str:
+def get_current_app(device_id: Optional[str] = None) -> str:
     """
     Get the currently focused app name.
 
@@ -37,7 +37,7 @@ def get_current_app(device_id: str | None = None) -> str:
 
 
 def tap(
-    x: int, y: int, device_id: str | None = None, delay: float | None = None
+    x: int, y: int, device_id: Optional[str] = None, delay: Optional[float] = None
 ) -> None:
     """
     Tap at the specified coordinates.
@@ -60,7 +60,7 @@ def tap(
 
 
 def double_tap(
-    x: int, y: int, device_id: str | None = None, delay: float | None = None
+    x: int, y: int, device_id: Optional[str] = None, delay: Optional[float] = None
 ) -> None:
     """
     Double tap at the specified coordinates.
@@ -90,8 +90,8 @@ def long_press(
     x: int,
     y: int,
     duration_ms: int = 3000,
-    device_id: str | None = None,
-    delay: float | None = None,
+    device_id: Optional[str] = None,
+    delay: Optional[float] = None,
 ) -> None:
     """
     Long press at the specified coordinates.
@@ -121,9 +121,9 @@ def swipe(
     start_y: int,
     end_x: int,
     end_y: int,
-    duration_ms: int | None = None,
-    device_id: str | None = None,
-    delay: float | None = None,
+    duration_ms: Optional[int] = None,
+    device_id: Optional[str] = None,
+    delay: Optional[float] = None,
 ) -> None:
     """
     Swipe from start to end coordinates.
@@ -165,7 +165,7 @@ def swipe(
     time.sleep(delay)
 
 
-def back(device_id: str | None = None, delay: float | None = None) -> None:
+def back(device_id: Optional[str] = None, delay: Optional[float] = None) -> None:
     """
     Press the back button.
 
@@ -184,7 +184,7 @@ def back(device_id: str | None = None, delay: float | None = None) -> None:
     time.sleep(delay)
 
 
-def home(device_id: str | None = None, delay: float | None = None) -> None:
+def home(device_id: Optional[str] = None, delay: Optional[float] = None) -> None:
     """
     Press the home button.
 
@@ -204,7 +204,7 @@ def home(device_id: str | None = None, delay: float | None = None) -> None:
 
 
 def launch_app(
-    app_name: str, device_id: str | None = None, delay: float | None = None
+    app_name: str, device_id: Optional[str] = None, delay: Optional[float] = None
 ) -> bool:
     """
     Launch an app by name.
@@ -243,7 +243,7 @@ def launch_app(
     return True
 
 
-def _get_adb_prefix(device_id: str | None) -> list:
+def _get_adb_prefix(device_id: Optional[str]) -> List[str]:
     """Get ADB command prefix with optional device specifier."""
     if device_id:
         return ["adb", "-s", device_id]

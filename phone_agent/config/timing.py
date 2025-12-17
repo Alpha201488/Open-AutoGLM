@@ -6,6 +6,7 @@ Users can customize these values by modifying this file or by setting environmen
 
 import os
 from dataclasses import dataclass
+from typing import Optional
 
 
 @dataclass
@@ -127,9 +128,9 @@ def get_timing_config() -> TimingConfig:
 
 
 def update_timing_config(
-    action: ActionTimingConfig | None = None,
-    device: DeviceTimingConfig | None = None,
-    connection: ConnectionTimingConfig | None = None,
+    action: Optional[ActionTimingConfig] = None,
+    device: Optional[DeviceTimingConfig] = None,
+    connection: Optional[ConnectionTimingConfig] = None,
 ) -> None:
     """
     Update the global timing configuration.
