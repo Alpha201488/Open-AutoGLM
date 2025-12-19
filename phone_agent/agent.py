@@ -3,7 +3,7 @@
 import json
 import traceback
 from dataclasses import dataclass
-from typing import Any, Callable
+from typing import Any, Callable, Dict, List, Optional
 
 from phone_agent.actions import ActionHandler
 from phone_agent.actions.handler import do, finish, parse_action
@@ -18,12 +18,12 @@ class AgentConfig:
     """Configuration for the PhoneAgent."""
 
     max_steps: int = 100
-    device_id: str | None = None
+    device_id: Optional[str] = None
     lang: str = "cn"
-    system_prompt: str | None = None
+    system_prompt: Optional[str] = None
     verbose: bool = True
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if self.system_prompt is None:
             self.system_prompt = get_system_prompt(self.lang)
 
@@ -34,9 +34,9 @@ class StepResult:
 
     success: bool
     finished: bool
-    action: dict[str, Any] | None
+    action: Optional[Dict[str, Any]]
     thinking: str
-    message: str | None = None
+    message: Optional[str] = None
 
 
 class PhoneAgent:
@@ -45,29 +45,15 @@ class PhoneAgent:
 
     The agent uses a vision-language model to understand screen content
     and decide on actions to complete user tasks.
-
-    Args:
-        model_config: Configuration for the AI model.
-        agent_config: Configuration for the agent behavior.
-        confirmation_callback: Optional callback for sensitive action confirmation.
-        takeover_callback: Optional callback for takeover requests.
-
-    Example:
-        >>> from phone_agent import PhoneAgent
-        >>> from phone_agent.model import ModelConfig
-        >>>
-        >>> model_config = ModelConfig(base_url="http://localhost:8000/v1")
-        >>> agent = PhoneAgent(model_config)
-        >>> agent.run("Open WeChat and send a message to John")
     """
 
     def __init__(
         self,
-        model_config: ModelConfig | None = None,
-        agent_config: AgentConfig | None = None,
-        confirmation_callback: Callable[[str], bool] | None = None,
-        takeover_callback: Callable[[str], None] | None = None,
-    ):
+        model_config: Optional[ModelConfig] = None,
+        agent_config: Optional[AgentConfig] = None,
+        confirmation_callback: Optional[Callable[[str], bool]] = None,
+        takeover_callback: Optional[Callable[[str], None]] = None,
+    ) -> None:
         self.model_config = model_config or ModelConfig()
         self.agent_config = agent_config or AgentConfig()
 
@@ -78,54 +64,30 @@ class PhoneAgent:
             takeover_callback=takeover_callback,
         )
 
-        self._context: list[dict[str, Any]] = []
-        self._step_count = 0
+        self._context: List[Dict[str, Any]] = []
+        self._step_count: int = 0
 
     def run(self, task: str) -> str:
-        """
-        Run the agent to complete a task.
-
-        Args:
-            task: Natural language description of the task.
-
-        Returns:
-            Final message from the agent.
-        """
+        """Run the agent to complete a task."""
         self._context = []
         self._step_count = 0
 
-        # First step with user prompt
         result = self._execute_step(task, is_first=True)
-
         if result.finished:
             return result.message or "Task completed"
 
-        # Continue until finished or max steps reached
         while self._step_count < self.agent_config.max_steps:
             result = self._execute_step(is_first=False)
-
             if result.finished:
                 return result.message or "Task completed"
 
         return "Max steps reached"
 
-    def step(self, task: str | None = None) -> StepResult:
-        """
-        Execute a single step of the agent.
-
-        Useful for manual control or debugging.
-
-        Args:
-            task: Task description (only needed for first step).
-
-        Returns:
-            StepResult with step details.
-        """
+    def step(self, task: Optional[str] = None) -> StepResult:
+        """Execute a single step of the agent."""
         is_first = len(self._context) == 0
-
         if is_first and not task:
             raise ValueError("Task is required for the first step")
-
         return self._execute_step(task, is_first)
 
     def reset(self) -> None:
@@ -134,23 +96,20 @@ class PhoneAgent:
         self._step_count = 0
 
     def _execute_step(
-        self, user_prompt: str | None = None, is_first: bool = False
+        self, user_prompt: Optional[str] = None, is_first: bool = False
     ) -> StepResult:
         """Execute a single step of the agent loop."""
         self._step_count += 1
 
-        # Capture current screen state
         screenshot = get_screenshot(self.agent_config.device_id)
         current_app = get_current_app(self.agent_config.device_id)
 
-        # Build messages
         if is_first:
             self._context.append(
                 MessageBuilder.create_system_message(self.agent_config.system_prompt)
             )
-
             screen_info = MessageBuilder.build_screen_info(current_app)
-            text_content = f"{user_prompt}\n\n{screen_info}"
+            text_content = "{}\n\n{}".format(user_prompt, screen_info)
 
             self._context.append(
                 MessageBuilder.create_user_message(
@@ -159,7 +118,7 @@ class PhoneAgent:
             )
         else:
             screen_info = MessageBuilder.build_screen_info(current_app)
-            text_content = f"** Screen Info **\n\n{screen_info}"
+            text_content = "** Screen Info **\n\n{}".format(screen_info)
 
             self._context.append(
                 MessageBuilder.create_user_message(
@@ -167,11 +126,10 @@ class PhoneAgent:
                 )
             )
 
-        # Get model response
         try:
             msgs = get_messages(self.agent_config.lang)
             print("\n" + "=" * 50)
-            print(f"💭 {msgs['thinking']}:")
+            print("💭 {}:".format(msgs["thinking"]))
             print("-" * 50)
             response = self.model_client.request(self._context)
         except Exception as e:
@@ -182,10 +140,9 @@ class PhoneAgent:
                 finished=True,
                 action=None,
                 thinking="",
-                message=f"Model error: {e}",
+                message="Model error: {}".format(e),
             )
 
-        # Parse action from response
         try:
             action = parse_action(response.action)
         except ValueError:
@@ -194,16 +151,13 @@ class PhoneAgent:
             action = finish(message=response.action)
 
         if self.agent_config.verbose:
-            # Print thinking process
             print("-" * 50)
-            print(f"🎯 {msgs['action']}:")
+            print("🎯 {}:".format(msgs["action"]))
             print(json.dumps(action, ensure_ascii=False, indent=2))
             print("=" * 50 + "\n")
 
-        # Remove image from context to save space
         self._context[-1] = MessageBuilder.remove_images_from_message(self._context[-1])
 
-        # Execute action
         try:
             result = self.action_handler.execute(
                 action, screenshot.width, screenshot.height
@@ -215,21 +169,24 @@ class PhoneAgent:
                 finish(message=str(e)), screenshot.width, screenshot.height
             )
 
-        # Add assistant response to context
         self._context.append(
             MessageBuilder.create_assistant_message(
-                f"<think>{response.thinking}</think><answer>{response.action}</answer>"
+                "<think>{}</think><answer>{}</answer>".format(
+                    response.thinking, response.action
+                )
             )
         )
 
-        # Check if finished
         finished = action.get("_metadata") == "finish" or result.should_finish
 
         if finished and self.agent_config.verbose:
             msgs = get_messages(self.agent_config.lang)
             print("\n" + "🎉 " + "=" * 48)
             print(
-                f"✅ {msgs['task_completed']}: {result.message or action.get('message', msgs['done'])}"
+                "✅ {}: {}".format(
+                    msgs["task_completed"],
+                    result.message or action.get("message", msgs["done"]),
+                )
             )
             print("=" * 50 + "\n")
 
@@ -242,7 +199,7 @@ class PhoneAgent:
         )
 
     @property
-    def context(self) -> list[dict[str, Any]]:
+    def context(self) -> List[Dict[str, Any]]:
         """Get the current conversation context."""
         return self._context.copy()
 
